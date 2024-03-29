@@ -118,6 +118,11 @@ Dans un espace avec un proportion uniforme d'entrée, la logique sera la même. 
 ## 4
 ### 4.3 Analyse de l'algorithme
 
+Pour cette partie, des cartes avec des $\eta$, $\sigma$ et $N$ ont été générés, chaque triplet a été exécuté 10 fois dont les moyennes de la MSE et de l'espacement neuronal ont été enregistrées ainsi que le maximum et le minimum pour ces dernières. L'ensemble des triplets correspond au produit cartésien de :
+$$\{0.0, 0.001, 0.05, 0.125, 0.25, 0.5, 0.75, 1.0, 2.0\} \space pour \space \eta \newline
+\{0.1, 0.2, 0.3, 0.4, 1.0, 1.4, 2.0, 3.0, 4.0\} \space pour \space \sigma \newline
+\{u_0...u_{48}\} \space avec \space u_{n+1} = u_n + 1000 \space et \space u_0 = 1000 \space pour \space N$$
+
 #### Variation de $\sigma$
 
 sigma = 0.1
@@ -129,5 +134,57 @@ sigma = 1.4
 sigma = 8
 ![sigma 8](./variation%20sigma/sigma_8.png)
 
-Nous voyons sur ces captures que la valeurs de $\sigma$ à un impact sur l'espacement entre les points. Comme conjecturé dans la partie 3.2, la valeur de $\sigma$ est inversement proportionnelle à l'espacement entre les neuronnes
+Nous voyons sur ces captures que la valeurs de $\sigma$ à un impact sur l'espacement entre les points. Comme conjecturé dans la partie 3.2, la valeur de $\sigma$ est inversement proportionnelle à l'espacement entre les neuronnes. Cela signifie qu'au plus $\sigma$ sera élevé, plus l'espacement neuronal sera faible :
+![esp function of var sigma fix eta n](./variation%20sigma/esp_var_sigma_fix_eta_n.png)
+
+Cependant cela n'est pas le cas pour la MSE qui augmentera quand $\sigma$ deviendra trop grand car les neurones seront trop concentrés pour occuper le jeu de données de façon efficace : 
+![mse function of var sigma fix eta n](./variation%20sigma/mse_var_sigma_fix_eta_n.png)  
+
+#### Variation de $\eta$
+
+eta = 0.001
+![eta 0.001](./variation%20map/square/low_eta_0_001.png)
+
+sigma = 0.05
+![eta 0.05](./variation%20sigma/sigma_1.4.png)
+
+eta = 0.8
+![eta 0.8](./variation%20map/square/high_eta_0_8.png)
+
+En étudiant ces captures, on peut confirmer qu'une valeur faible pour $\eta$ donnera une carte brouillon car les neurones s'organiseront trop lentement. Cependant, on pourrait naturellement s'attendre à avoir de bon résultat avec un $\eta$ haut mais comme conjecturé, cela n'est pas le cas car les poids vont évoluer trop brutalement et les neurones gagnants vont dépasser les données et vont avoir du mal à se stabiliser sur ces dernières et vont plutôt tourner autour, cela conduit inévitablement à une carte également brouillon. Il faut donc une valeur d'$\eta$ qui soit assez réfléchi pour ne pas tomber dans l'un des deux extrêmes.  
+On peut, cependant, voir qu'une valeur faible pour $\eta$ est préférable pour minimiser la MSE :
+![mse function of var eta fix sigma n](./variation%20eta/mse_var_eta_fix_sigma_n.png)
+Et de façon similaire, l'espacement neuronal croit également en fonction d'$\eta$, ce qui n'est pas intuitif mais est dû au fait que les neurones s'éparpilleront plus facilement avec un haut taux d'apprentissage, et les neurones non-gagnants auront plus de mal à se rapprocher de ces derniers :
+![esp function of var eta fix sigma n](./variation%20eta/esp_var_eta_fix_sigma_n.png)
+
+#### Variation de $N$
+
+Il est logique de penser qu'un nombre élevé de pas laissera au réseau de neurones le temps d'atteindre un état "fixe" dans lequel peu de changement au niveau des poids surviendront à la prochaine itération. Cependant l'influence est moins flagrante que cela car il ne suffit que quelques milliers d'itérations avant que la carte se stabilise.  
+![mse function of var n fix eta sigma](./variation%20n/mse_var_n_fix_eta_sigma.png)
+![esp function of var n fix eta sigma](./variation%20n/esp_var_n_fix_eta_sigma.png)
+
+Les fluctuations de la MSE et de l'espacement neuronal sont faibles très rapidement et ne permettent pas de justifier un $N$ très grand au lieu d'un $N$ grand car quelques milliers de pas suffisent à obtenir un réseau stable.
+
+![mse function of var n fix eta sigma](./variation%20n/mse_var_n_fix_eta_sigma.png)
+![esp function of var n fix eta sigma](./variation%20n/esp_var_n_fix_eta_sigma.png)
+
+Ce propos concernent plutôt les couples $\eta$ $\sigma$ qui fonctionnent bien ensemble (comme par exemple 0.05 et 1.4 respectivement), mais dans le cas de couples moins synergiques, un $N$ élevé peut se révélé intéressant comme par exemple si on prend la moyenne de la MSE et de l'espacement neuronal pour tous les couples étudiés :  
+
+|MSE|Espacement neuronal|
+|:-:|:-:|
+|![avg mse function of var n](./variation%20n/mse_avg.png)|![avg esp function of var n](./variation%20n/esp_avg.png)|
+|![min max mse function of var n](./variation%20n/mse_min_max.png)|![min max esp function of var n](./variation%20n/esp_min_max.png)|
+
+#### Modification de la carte et du jeu de données
+
+Conformément aux hypothèses faites dans la partie 3, si les données sont répartis non-uniformément ou dans des zones discontinues/disjointes, les neurones vont se répartir près des zones riches en données avec une minorité de neurones qui feront soit le pont au niveau des zones pauvres, soit qui les occuperont avec une densité en neurone proportionnelle à la densité des données si les zones ne sont pas uniformément distribuées :
+|Samples|$\eta=0.05, \sigma=1.4$|$\eta=0.05, \sigma=5$|
+|:-:|:-:|:-:|
+|![square sample](./variation%20map/square/sample.png)|![square basic](./variation%20sigma/sigma_1.4.png)|![square high sigma](./variation%20map/square/high_sigma_5.png)|
+|![center sample](./variation%20map/center/sample.png)|![center basic](./variation%20map/center/basic.png)|![center high sigma](./variation%20map/center/high_sigma_5.png)|
+|![dual_square sample](./variation%20map/dual_square/sample.png)|![dual_square basic](./variation%20map/dual_square/basic.png)|![dual_square high sigma](./variation%20map/dual_square/high_sigma_5.png)|
+|![line sample](./variation%20map/line/sample.png)|![line basic](./variation%20map/line/basic.png)|![line high sigma](./variation%20map/line/high_sigma_5.png)|
+|![missing_square_top_right sample](./variation%20map/missing_square_top_right/sample.png)|![missing_square_top_right basic](./variation%20map/missing_square_top_right/basic.png)|![missing_square_top_right high sigma](./variation%20map/missing_square_top_right/high_sigma_5.png)|
+|![middle_density sample](./variation%20map/middle_density/sample.png)|![middle_density basic](./variation%20map/middle_density/basic.png)||
+|![dual_corner sample](./variation%20map/dual_corner/sample.png)|![dual_corner basic](./variation%20map/dual_corner/basic.png)||
 

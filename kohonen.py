@@ -256,128 +256,186 @@ class SOM:
     return sum
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
+
   # Création d'un réseau avec une entrée (2,1) et une carte (10,10)
   #TODO mettre à jour la taille des données d'entrée pour les données robotiques
   network = SOM((2,1),(10,10))
-  with open(r"C:\Users\Nicolas Guruphat\Documents\ObsidianVault\University\Polytech\4A\S8\IA\self-organizing-map\comme_tu_veux.csv", "w") as csvfile:
-    csv.writer(csvfile).writerow(["ETA", "SIGMA", "N", "esp_neuronal"])
+  
+  last_avg_line = None
+  last_min_line = None
+  last_max_line = None
+  with open(r"./avg.csv", "r", newline='') as csvfile:
+    lines = csvfile.readlines()
+    if len(lines) > 2:
+      last_avg_line = lines[-1]
+      print(last_avg_line)
+  with open(r"./min.csv", "r", newline='') as csvfile:
+    lines = csvfile.readlines()
+    if len(lines) > 2:
+      last_min_line = lines[-1]
+      print(last_min_line)
+  with open(r"./max.csv", "r", newline='') as csvfile:
+    lines = csvfile.readlines()
+    if len(lines) > 2:
+      last_max_line = lines[-1]
+      print(last_max_line)
+
+  if not last_avg_line:
+    with open(r"./avg.csv", "w", newline='') as csvfile:
+      csv.writer(csvfile).writerow(["ETA", "SIGMA", "N", "esp_neuronal"])
+  if not last_min_line:
+    with open(r"./min.csv", "w", newline='') as csvfile:
+      csv.writer(csvfile).writerow(["ETA", "SIGMA", "N", "esp_neuronal"])
+  if not last_max_line:
+    with open(r"./max.csv", "w", newline='') as csvfile:
+      csv.writer(csvfile).writerow(["ETA", "SIGMA", "N", "esp_neuronal"])
+
   # PARAMÈTRES DU RÉSEAU
   parameters = list()
   # etas = [0, 0.0001, 0.05, 0.5, 0.8, 1]
-  etas = [pow(2, v) for v in range(-3, 3)]
+  # etas = [0.05]
+  etas = [0.125, 0.25, 2.0, 0.5, 1.0, 0.75, 0.05, 0.00]
+  # etas = [2.0, 0.001, 0.75]
+  # etas = [pow(2, v / 1) for v in range(-3, 4)]
   # sigmas = [1.4]
-  sigmas = [v / 1 for v in range(1, 5)]
+  # sigmas = [v / 1 for v in range(1, 5)] + [v / 10 for v in range(1, 5)]
+  sigmas = [1.4]
   # ns = [30000]
-  ns = [v * 100 for v in range(1, 10)]
+  ns = [v * 1000 for v in range(1, 50)]
   for eta in etas:
     for sigma in sigmas:
       for n in ns:
         parameters.append((eta, sigma, n))
-    
+  
+  last_dones = (-1, -1, -1)
+  if last_avg_line:
+    split_line = last_avg_line.split(",")
+    last_eta = float(split_line[0])
+    last_sigma = float(split_line[1])
+    last_n = int(split_line[2])
+    last_dones = (last_eta, last_sigma, last_n)
+
+  try:
+    parameters = parameters[parameters.index(last_dones) + 1:]
+  except ValueError:
+    pass
+
   SHOW_GRAPHS = False
 
   for parameter in parameters:
-    # Taux d'apprentissage
-    ETA = parameter[0]
-    # ETA = 0.05
-    # Largeur du voisinage
-    SIGMA = parameter[1]
-    # SIGMA = 1.4
-    # Nombre de pas de temps d'apprentissage
-    N = parameter[2]
-    print(f"ETA {ETA} SIGMA {SIGMA} N {N}")
-    # N = 30000
-    # Affichage interactif de l'évolution du réseau 
-    #TODO à mettre à faux pour que les simulations aillent plus vite
-    # VERBOSE = False
-    VERBOSE = True
-    # Nombre de pas de temps avant rafraissichement de l'affichage
-    NAFFICHAGE = 1000 
-    # DONNÉES D'APPRENTISSAGE
-    # Nombre de données à générer pour les ensembles 1, 2 et 3
-    # TODO décommenter les données souhaitées
-    nsamples = 1200
-    # Ensemble de données 1
-    samples = numpy.random.random((nsamples,2,1))*2-1
-    # Ensemble de données 2
-  #  samples1 = -numpy.random.random((nsamples//3,2,1))
-  #  samples2 = numpy.random.random((nsamples//3,2,1))
-  #  samples2[:,0,:] -= 1
-  #  samples3 = numpy.random.random((nsamples//3,2,1))
-  #  samples3[:,1,:] -= 1
-  #  samples = numpy.concatenate((samples1,samples2,samples3))
-    # Ensemble de données 3
-  #  samples1 = numpy.random.random((nsamples//2,2,1))
-  #  samples1[:,0,:] -= 1
-  #  samples2 = numpy.random.random((nsamples//2,2,1))
-  #  samples2[:,1,:] -= 1
-  #  samples = numpy.concatenate((samples1,samples2))
-    # Ensemble de données robotiques
-  #  samples = numpy.random.random((nsamples,4,1))
-  #  samples[:,0:2,:] *= numpy.pi
-  #  l1 = 0.7
-  #  l2 = 0.3
-  #  samples[:,2,:] = l1*numpy.cos(samples[:,0,:])+l2*numpy.cos(samples[:,0,:]+samples[:,1,:])
-  #  samples[:,3,:] = l1*numpy.sin(samples[:,0,:])+l2*numpy.sin(samples[:,0,:]+samples[:,1,:])
-    # Affichage des données (pour les ensembles 1, 2 et 3)
-    if SHOW_GRAPHS:
-      plt.figure()
-      plt.scatter(samples[:,0,0], samples[:,1,0])
-      plt.xlim(-1,1)
-      plt.ylim(-1,1)
-      plt.suptitle('Donnees apprentissage')
-      plt.show()
-    # Affichage des données (pour l'ensemble robotique)
-  #  plt.figure()
-  #  plt.subplot(1,2,1)
-  #  plt.scatter(samples[:,0,0].flatten(),samples[:,1,0].flatten(),c='k')
-  #  plt.subplot(1,2,2)
-  #  plt.scatter(samples[:,2,0].flatten(),samples[:,3,0].flatten(),c='k')
-  #  plt.suptitle('Donnees apprentissage')
-  #  plt.show()
-      
-    # SIMULATION
-    # Affichage des poids du réseau
-    if SHOW_GRAPHS:
-      network.plot()
-    # Initialisation de l'affichage interactif
-    if VERBOSE and SHOW_GRAPHS:
-      # Création d'une figure
-      plt.figure()
-      # Mode interactif
-      plt.ion()
-      # Affichage de la figure
-      plt.show()
-    # Boucle d'apprentissage
-    for i in range(N+1):
-      # Choix d'un exemple aléatoire pour l'entrée courante
-      index = numpy.random.randint(nsamples)
-      x = samples[index].flatten()
-      # Calcul de l'activité du réseau
-      network.compute(x)
-      # Modification des poids du réseau
-      network.learn(ETA,SIGMA,x)
-      # Mise à jour de l'affichage
-      if VERBOSE and i%NAFFICHAGE==0 and SHOW_GRAPHS:
-        # Effacement du contenu de la figure
-        plt.clf()
-        # Remplissage de la figure
-        # TODO à remplacer par scatter_plot_2 pour les données robotiques
-        network.scatter_plot(True)
-        # Affichage du contenu de la figure
-        plt.pause(0.00001)
-        plt.draw()
-    # Fin de l'affichage interactif
-    if VERBOSE and SHOW_GRAPHS:
-      # Désactivation du mode interactif
-      plt.ioff()
-    # Affichage des poids du réseau
-    if SHOW_GRAPHS:
-      network.plot()
-    # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
-    mse = network.MSE(samples)
-    esp_neuronal =  network.espacement_neuronal()
-    print("erreur de quantification vectorielle moyenne ",mse)
-    print("espacement neuronal : ", esp_neuronal)
-    with open(r"C:\Users\Nicolas Guruphat\Documents\ObsidianVault\University\Polytech\4A\S8\IA\self-organizing-map\comme_tu_veux.csv", "a+") as csvfile:
-      csv.writer(csvfile).writerow([ETA, SIGMA, N, mse, esp_neuronal])
+    res_mse = list()
+    res_disp = list()
+    for u in range(10):
+      # Taux d'apprentissage
+      ETA = parameter[0]
+      # ETA = 0.05
+      # Largeur du voisinage
+      SIGMA = parameter[1]
+      # SIGMA = 1.4
+      # Nombre de pas de temps d'apprentissage
+      N = parameter[2]
+      print(f"ETA {ETA} SIGMA {SIGMA} N {N}")
+      # N = 30000
+      # Affichage interactif de l'évolution du réseau 
+      #TODO à mettre à faux pour que les simulations aillent plus vite
+      # VERBOSE = False
+      VERBOSE = True
+      # Nombre de pas de temps avant rafraissichement de l'affichage
+      NAFFICHAGE = 1000 
+      # DONNÉES D'APPRENTISSAGE
+      # Nombre de données à générer pour les ensembles 1, 2 et 3
+      # TODO décommenter les données souhaitées
+      nsamples = 1200
+      # Ensemble de données 1
+      samples = numpy.random.random((nsamples,2,1))*2-1
+      # Ensemble de données 2
+    #  samples1 = -numpy.random.random((nsamples//3,2,1))
+    #  samples2 = numpy.random.random((nsamples//3,2,1))
+    #  samples2[:,0,:] -= 1
+    #  samples3 = numpy.random.random((nsamples//3,2,1))
+    #  samples3[:,1,:] -= 1
+    #  samples = numpy.concatenate((samples1,samples2,samples3))
+      # Ensemble de données 3
+    #  samples1 = numpy.random.random((nsamples//2,2,1))
+    #  samples1[:,0,:] -= 1
+    #  samples2 = numpy.random.random((nsamples//2,2,1))
+    #  samples2[:,1,:] -= 1
+    #  samples = numpy.concatenate((samples1,samples2))
+      # Ensemble de données robotiques
+    #  samples = numpy.random.random((nsamples,4,1))
+    #  samples[:,0:2,:] *= numpy.pi
+    #  l1 = 0.7
+    #  l2 = 0.3
+    #  samples[:,2,:] = l1*numpy.cos(samples[:,0,:])+l2*numpy.cos(samples[:,0,:]+samples[:,1,:])
+    #  samples[:,3,:] = l1*numpy.sin(samples[:,0,:])+l2*numpy.sin(samples[:,0,:]+samples[:,1,:])
+      # Affichage des données (pour les ensembles 1, 2 et 3)
+      if SHOW_GRAPHS:
+        plt.figure()
+        plt.scatter(samples[:,0,0], samples[:,1,0])
+        plt.xlim(-1,1)
+        plt.ylim(-1,1)
+        plt.suptitle('Donnees apprentissage')
+        plt.show()
+      # Affichage des données (pour l'ensemble robotique)
+    #  plt.figure()
+    #  plt.subplot(1,2,1)
+    #  plt.scatter(samples[:,0,0].flatten(),samples[:,1,0].flatten(),c='k')
+    #  plt.subplot(1,2,2)
+    #  plt.scatter(samples[:,2,0].flatten(),samples[:,3,0].flatten(),c='k')
+    #  plt.suptitle('Donnees apprentissage')
+    #  plt.show()
+        
+      # SIMULATION
+      # Affichage des poids du réseau
+      if SHOW_GRAPHS:
+        network.plot()
+      # Initialisation de l'affichage interactif
+      if VERBOSE and SHOW_GRAPHS:
+        # Création d'une figure
+        plt.figure()
+        # Mode interactif
+        plt.ion()
+        # Affichage de la figure
+        plt.show()
+      # Boucle d'apprentissage
+      for i in range(N+1):
+        # Choix d'un exemple aléatoire pour l'entrée courante
+        index = numpy.random.randint(nsamples)
+        x = samples[index].flatten()
+        # Calcul de l'activité du réseau
+        network.compute(x)
+        # Modification des poids du réseau
+        network.learn(ETA,SIGMA,x)
+        # Mise à jour de l'affichage
+        if VERBOSE and i%NAFFICHAGE==0 and SHOW_GRAPHS:
+          # Effacement du contenu de la figure
+          plt.clf()
+          # Remplissage de la figure
+          # TODO à remplacer par scatter_plot_2 pour les données robotiques
+          network.scatter_plot(True)
+          # Affichage du contenu de la figure
+          plt.pause(0.00001)
+          plt.draw()
+      # Fin de l'affichage interactif
+      if VERBOSE and SHOW_GRAPHS:
+        # Désactivation du mode interactif
+        plt.ioff()
+      # Affichage des poids du réseau
+      if SHOW_GRAPHS:
+        network.plot()
+      # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
+      mse = network.MSE(samples)
+      esp_neuronal =  network.espacement_neuronal()
+      res_mse.append(mse)
+      res_disp.append(esp_neuronal)
+      print("erreur de quantification vectorielle moyenne ",mse)
+      print("espacement neuronal : ", esp_neuronal)
+
+    with open(r"./avg.csv", "a", newline='') as csvfile:
+      csv.writer(csvfile).writerow([ETA, SIGMA, N, sum(res_mse) / len(res_mse), sum(res_disp) / len(res_disp)])
+    
+    with open(r"./min.csv", "a", newline='') as csvfile:
+      csv.writer(csvfile).writerow([ETA, SIGMA, N, min(res_mse), min(res_disp)])
+
+    with open(r"./max.csv", "a", newline='') as csvfile:
+      csv.writer(csvfile).writerow([ETA, SIGMA, N, max(res_mse), max(res_disp)])
