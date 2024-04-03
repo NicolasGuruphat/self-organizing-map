@@ -195,5 +195,75 @@ Conformément aux hypothèses faites dans la partie 3, si les données sont rép
 
 Une fois la carte apprise, chaque neurone "stockera" dans son poids une partie de la résolution de l'équation pour une valeur donnée. Plus précisément, on retrouvera la correspondance entre les positions (x,y) de la main et les angles ($\theta1$; $\theta2$). Donc, pour un vecteur de position (x,y) , nous pourrons trouver un neurone qui a une valeur similaire/proche dans la première partie de son poids et, en regardant la deuxième partie du vecteur, nous trouverons la valeur ($\theta1$; $\theta2$) correspondante (et inversement). À moins d'avoir un neurone qui possède exactement le même (x,y), les angles que nous trouverons seront approchés. Pour être le plus précis possible, nous allons utiliser, en plus de ce neuronne, les autre neurones possèdant une valeur proche. Cette valeur sera inversement pondérée par rapport à la distance entre la position et le poid du neurone.  
 
+Voici le code correspondant à cette prédiction, ainsi que les calculs de vérifications :
+
+```py
+def find_position(self, teta1, teta2):
+    total_distance = 0
+    neuron_distances: Dict[Neuron, float] = dict()
+    for row in self.map :
+      for neuron in row :
+        distance = sqrt(pow(neuron.weights[0] - teta1, 2) + pow(neuron.weights[1] - teta2, 2))
+        neuron_distances[neuron] = distance
+        total_distance += distance
+     
+    coeff_sum = 0
+    position = [0,0]
+    
+    for neuron, distance in neuron_distances.items():
+      ratio = total_distance/distance
+      coeff_sum += ratio
+      position[0] += neuron.weights[2]*ratio
+      position[1] += neuron.weights[3]*ratio
+
+    position[0] /= coeff_sum
+    position[1] /= coeff_sum
+
+    return position
+
+t1 = 2
+t2 = 3
+
+print(network.find_position(t1,t2))
+
+x = l1*numpy.cos(t1)+l2*numpy.cos(t1+t2)
+y = l1*numpy.sin(t1)+l2*numpy.sin(t1+t2)
+
+print(f"x {x} y {y}")
+```
+
 ### *On veut déplacer le bras d'une position motrice ($\theta1$;$\theta2$) à une nouvelle ($\theta1$; $\theta2$). En utilisant la carte apprise, comment prédire la suite des positions spatiales prise par la main ? On demande ici de pouvoir tracer grossièrement la trajectoire, pas forcément d'avoir la fonction exacte de toutes les positions prises. Expliquer/justifer le principe et implémentez le.*
 
+Pour prédire la suite des positions spatiales prise par la main, il nous faut décomposer le mouvement en un certains nombre d'étapes. À chacune des ces étapes, nous allons effectuer la même action de prédiction que dans la question précédente. Cela nous donnera une courbe representant la position à chacune des étapes. 
+
+Afin de lisser la courbe, nous avons choisi de réaliser 100 étapes. Voici les graphiques correspondant à différents mouvement :
+- Déplacement de la position (0,3) à (1,1)
+![valeur 0 3 1 1](/bras_robotique/0_3_1_1.png)
+- Déplacement de la position (0.3,2.5) à (1.8,0.8)
+![valeur 0 3 1 1](/bras_robotique/0-3_2-5_1-8_0-8.png)
+- Déplacement de la position (2,3) à (0,0)
+![valeur 0 3 1 1](/bras_robotique/2_3_0_0.png)
+
+Voici le code correspondant à ces générations :
+```py
+t1p = 0
+t2p = 0
+
+step_number = 100
+
+delta = sqrt(pow(t1 - t1p, 2) + pow(t2 - t2p, 2))
+
+steps = list()
+
+step_size = delta / step_number
+
+for i in range(step_number + 1):
+    stheta1 = t1 + (t1 - t1p) * step_size * i
+    stheta2 = t2 + (t2 - t2p) * step_size * i
+    steps.append(network.find_position(stheta1, stheta2))
+
+plt.plot([step[0] for step in steps], [step[1] for step in steps])
+plt.grid(True)
+plt.title(f"Predicted hand position ({t1}, {t2}) to ({t1p}, {t2p})")
+plt.show()
+```

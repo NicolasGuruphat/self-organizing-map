@@ -250,7 +250,6 @@ class SOM:
         distance = sqrt(pow(neuron.weights[0] - teta1, 2) + pow(neuron.weights[1] - teta2, 2))
         neuron_distances[neuron] = distance
         total_distance += distance
-    # cette variable nous permet de revenir à une valeur entre 0 et 1
      
     coeff_sum = 0
     position = [0,0]
@@ -258,7 +257,6 @@ class SOM:
     for neuron, distance in neuron_distances.items():
       ratio = total_distance/distance
       coeff_sum += ratio
-      # print(f"ratio : {ratio}, poids : {neuron.weights}, distance : {distance}, coeff sum : {coeff_sum}, total  distance {total_distance}")
       position[0] += neuron.weights[2]*ratio
       position[1] += neuron.weights[3]*ratio
 
