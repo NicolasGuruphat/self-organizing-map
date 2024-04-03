@@ -188,3 +188,12 @@ Conformément aux hypothèses faites dans la partie 3, si les données sont rép
 |![middle_density sample](./variation%20map/middle_density/sample.png)|![middle_density basic](./variation%20map/middle_density/basic.png)||
 |![dual_corner sample](./variation%20map/dual_corner/sample.png)|![dual_corner basic](./variation%20map/dual_corner/basic.png)||
 
+
+## 4.4 Bras robotique
+
+### *Une fois la carte apprise, comment faire pour prédire la position qu'aura le bras étant donnée une position motrice ? Comment prédire la position motrice étant donnée une position spatiale que l'on souhaite atteindre ? Expliquer/justifer le principe et implémentez le.*
+
+Une fois la carte apprise, chaque neurone "stockera" dans son poids une partie de la résolution de l'équation pour une valeur donnée. Plus précisément, on retrouvera la correspondance entre les positions (x,y) de la main et les angles ($\theta1$; $\theta2$). Donc, pour un vecteur de position (x,y) , nous pourrons trouver un neurone qui a une valeur similaire/proche dans la première partie de son poids et, en regardant la deuxième partie du vecteur, nous trouverons la valeur ($\theta1$; $\theta2$) correspondante (et inversement). À moins d'avoir un neurone qui possède exactement le même (x,y), les angles que nous trouverons seront approchés. Pour être le plus précis possible, nous allons utiliser, en plus de ce neuronne, les autre neurones possèdant une valeur proche. Cette valeur sera inversement pondérée par rapport à la distance entre la position et le poid du neurone.  
+
+### *On veut déplacer le bras d'une position motrice ($\theta1$;$\theta2$) à une nouvelle ($\theta1$; $\theta2$). En utilisant la carte apprise, comment prédire la suite des positions spatiales prise par la main ? On demande ici de pouvoir tracer grossièrement la trajectoire, pas forcément d'avoir la fonction exacte de toutes les positions prises. Expliquer/justifer le principe et implémentez le.*
+
