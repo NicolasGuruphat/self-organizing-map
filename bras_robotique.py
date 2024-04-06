@@ -242,12 +242,12 @@ class SOM:
     # On renvoie l'erreur de quantification vectorielle moyenne
     return s/nsamples
   
-  def find_position(self, teta1, teta2):
+  def find_position(self, theta1, theta2):
     total_distance = 0
     neuron_distances: Dict[Neuron, float] = dict()
     for row in self.map :
       for neuron in row :
-        distance = sqrt(pow(neuron.weights[0] - teta1, 2) + pow(neuron.weights[1] - teta2, 2))
+        distance = sqrt(pow(neuron.weights[0] - theta1, 2) + pow(neuron.weights[1] - theta2, 2))
         neuron_distances[neuron] = distance
         total_distance += distance
      

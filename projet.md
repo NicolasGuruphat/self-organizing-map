@@ -198,12 +198,12 @@ Une fois la carte apprise, chaque neurone "stockera" dans son poids une partie d
 Voici le code correspondant à cette prédiction, ainsi que les calculs de vérifications :
 
 ```py
-def find_position(self, teta1, teta2):
+def find_position(self, theta1, theta2):
     total_distance = 0
     neuron_distances: Dict[Neuron, float] = dict()
     for row in self.map :
       for neuron in row :
-        distance = sqrt(pow(neuron.weights[0] - teta1, 2) + pow(neuron.weights[1] - teta2, 2))
+        distance = sqrt(pow(neuron.weights[0] - theta1, 2) + pow(neuron.weights[1] - theta2, 2))
         neuron_distances[neuron] = distance
         total_distance += distance
      
@@ -234,7 +234,7 @@ print(f"x {x} y {y}")
 
 ### *On veut déplacer le bras d'une position motrice ($\theta1$;$\theta2$) à une nouvelle ($\theta1$; $\theta2$). En utilisant la carte apprise, comment prédire la suite des positions spatiales prise par la main ? On demande ici de pouvoir tracer grossièrement la trajectoire, pas forcément d'avoir la fonction exacte de toutes les positions prises. Expliquer/justifer le principe et implémentez le.*
 
-Pour prédire la suite des positions spatiales prise par la main, il nous faut décomposer le mouvement en un certains nombre d'étapes. À chacune des ces étapes, nous allons effectuer la même action de prédiction que dans la question précédente. Cela nous donnera une courbe representant la position à chacune des étapes. 
+Pour prédire la suite des positions spatiales prise par la main, il nous faut décomposer le mouvement en un certain nombre d'étapes. À chacune des ces étapes, nous allons effectuer la même action de prédiction que dans la question précédente. Cela nous donnera une courbe representant la position à chacune des étapes. 
 
 Afin de lisser la courbe, nous avons choisi de réaliser 100 étapes. Voici les graphiques correspondant à différents mouvement :
 - Déplacement de la position (0,3) à (1,1)
