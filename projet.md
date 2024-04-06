@@ -1,8 +1,8 @@
 # Self Organizing Map
 
-par Gregory Moutote et Nicolas Guruphat 
+par Grégory Moutote et Nicolas Guruphat 
 
-## 3 Étude “theorique” de cas simples
+## 3 Étude “théorique” de cas simples
 
 ### 3.1 Influence de η
 
@@ -12,7 +12,7 @@ Dans ce cas là, le delta sera de 0 car le taux d'apprentissage est facteur de t
 
 #### *Même question dans le cas où η = 1*
 
-Si le taux d'apprentissage est égal à 1, $(x_i - w_{ij})$ tendra vers 0 (car nous travaillons sur le neuronne gagnant), donc le delta tendra également vers 0 au fur et à mesure que le neurone gagnat se rapprochera de l'entrée.
+Si le taux d'apprentissage est égal à 1, $(x_i - w_{ij})$ tendra vers 0 (car nous travaillons sur le neuronne gagnant), donc le delta tendra également vers 0 au fur et à mesure que le neurone gagnant se rapprochera de l'entrée.
 
 #### *Dans le cas où $η ∈]0, 1[$ (paramétrisation “normale”) où se situera le nouveau poids par rapport à W∗ et X en fonction de η (formule mathématique simple ou explication géométrique) ?*
 
@@ -191,6 +191,8 @@ Conformément aux hypothèses faites dans la partie 3, si les données sont rép
 
 ## 4.4 Bras robotique
 
+Pour cette partie, le code se trouve dans le fichier `bras_robotique.py`
+
 ### *Une fois la carte apprise, comment faire pour prédire la position qu'aura le bras étant donnée une position motrice ? Comment prédire la position motrice étant donnée une position spatiale que l'on souhaite atteindre ? Expliquer/justifer le principe et implémentez le.*
 
 Une fois la carte apprise, chaque neurone "stockera" dans son poids une partie de la résolution de l'équation pour une valeur donnée. Plus précisément, on retrouvera la correspondance entre les positions (x,y) de la main et les angles ($\theta1$; $\theta2$). Donc, pour un vecteur de position (x,y) , nous pourrons trouver un neurone qui a une valeur similaire/proche dans la première partie de son poids et, en regardant la deuxième partie du vecteur, nous trouverons la valeur ($\theta1$; $\theta2$) correspondante (et inversement). À moins d'avoir un neurone qui possède exactement le même (x,y), les angles que nous trouverons seront approchés. Pour être le plus précis possible, nous allons utiliser, en plus de ce neuronne, les autre neurones possèdant une valeur proche. Cette valeur sera inversement pondérée par rapport à la distance entre la position et le poid du neurone.  
@@ -234,15 +236,15 @@ print(f"x {x} y {y}")
 
 ### *On veut déplacer le bras d'une position motrice ($\theta1$;$\theta2$) à une nouvelle ($\theta1$; $\theta2$). En utilisant la carte apprise, comment prédire la suite des positions spatiales prise par la main ? On demande ici de pouvoir tracer grossièrement la trajectoire, pas forcément d'avoir la fonction exacte de toutes les positions prises. Expliquer/justifer le principe et implémentez le.*
 
-Pour prédire la suite des positions spatiales prise par la main, il nous faut décomposer le mouvement en un certain nombre d'étapes. À chacune des ces étapes, nous allons effectuer la même action de prédiction que dans la question précédente. Cela nous donnera une courbe representant la position à chacune des étapes. 
+Pour prédire la suite des positions spatiales prisent par la main, il nous faut décomposer le mouvement en un certain nombre d'étapes. À chacune des ces étapes, nous allons effectuer la même action de prédiction que dans la question précédente. Cela nous donnera une courbe representant la position à chacune des étapes. 
 
 Afin de lisser la courbe, nous avons choisi de réaliser 100 étapes. Voici les graphiques correspondant à différents mouvement :
-- Déplacement de la position (0,3) à (1,1)
-![valeur 0 3 1 1](/bras_robotique/0_3_1_1.png)
-- Déplacement de la position (0.3,2.5) à (1.8,0.8)
-![valeur 0 3 1 1](/bras_robotique/0-3_2-5_1-8_0-8.png)
-- Déplacement de la position (2,3) à (0,0)
-![valeur 0 3 1 1](/bras_robotique/2_3_0_0.png)
+- Déplacement de la position (0,3) à (1,1)  
+![valeur 0 3 1 1](bras_robotique/0_3_1_1.png)
+- Déplacement de la position (0.3,2.5) à (1.8,0.8)  
+![valeur 0 3 1 1](bras_robotique/0-3_2-5_1-8_0-8.png)
+- Déplacement de la position (2,3) à (0,0)  
+![valeur 0 3 1 1](bras_robotique/2_3_0_0.png)
 
 Voici le code correspondant à ces générations :
 ```py
